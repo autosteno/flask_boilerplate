@@ -2,6 +2,9 @@ from flask import Blueprint, request, jsonify
 from flask import current_app as app
 from ..common import authenticator, validator
 from .validator import get_user_validator
+from ..services.factory import ServiceFactory
+from ..common.constants import SupportedVendors
+
 user_blueprint = Blueprint('user', __name__, url_prefix='/user')
 
 
@@ -17,7 +20,9 @@ def get(user_id):
     """
     # /user/12
     app.logger.info('[User] Start')
-    return jsonify({'id': user_id})
+    service = ServiceFactory.get_transcription_service(SupportedVendors.Amazon.value)
+    transcript = service.transcribe(None)
+    return jsonify(transcript.to_dict())
 
 
 @user_blueprint.route('/search', methods=['GET'])
